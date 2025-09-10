@@ -1,13 +1,12 @@
 import pandas as pd
-import numpy as np
 import re
 
-# Define constants
+# define constants
 NAMES = ['brody', 'saylor', 'ccush', 'shannon', 'heather', 'paul',
          'seb', 'eben', 'peter', 'cam', 'jackson', 'tom', 'lyle',
-         'connor', 'john', 'alex', 'calvin', 'mike', 'will']
+         'connor', 'john', 'alex', 'calvin', 'mike', 'will', 'robbie']
 
-LOCATIONS = ['bolton', 'chic chocs', 'jay', 'bush', 'ricker', 'tucks',
+LOCATIONS = ['bolton', 'chic-chocs', 'jay', 'bush', 'ricker', 'tucks',
              'great gulf', 'cochran', 'middlebury', 'whaleback', 'smuggs',
              'tremblant', 'killington', 'baldface', 'notch', 'nosedive','waterville', 'sunday river']
 
@@ -20,7 +19,7 @@ parsed_data = []
 # Open and process each line
 with open('data/log.txt', 'r') as f:
     for line in f:
-        ski_location = ''
+        ski_location = 'other'
         ski_date = ''
         friends = []
 
@@ -36,19 +35,27 @@ with open('data/log.txt', 'r') as f:
             if word in NAMES:
                 friends.append(word)
 
-        # Store result if there's at least one meaningful entry
-        if ski_date or ski_location or friends:
-            parsed_data.append({
-                'date': ski_date,
-                'location': ski_location,
-                'friends': ', '.join(friends)
-            })
+        # store result if at least one field is populated
+        if ski_date:
+            if ski_location != 'other' or friends:
+                parsed_data.append({
+                    'date': ski_date,
+                    'location': ski_location,
+                    'friends': ', '.join(friends)
+                })
 
-# Convert to DataFrame
+# convert to DF
 df = pd.DataFrame(parsed_data)
 
-# Display or save
+# convert 'date' to datetime format (assuming year is 2025, add year manually)
+df['date'] = pd.to_datetime(df['date'] + '/2025', format='%m/%d/%Y')
+
+# sort by date
+df = df.sort_values(by='date')
+
+# save DF
 print(df.head())
 df.to_csv('data/ski_logs.csv', index=False)
+
 
 
